@@ -80,6 +80,9 @@ def steady_coefficients(mass, damping, stiffness, omega, force):
         raise ValueError("force must be finite")
     with np.errstate(over="ignore", invalid="ignore"):
         z = complex(k - m * w * w, c * w)
+    if not np.all(np.isfinite([z.real, z.imag])) or abs(z) == 0:
+        raise ValueError("oscillator parameters exceed numerical range")
+    with np.errstate(over="ignore", invalid="ignore"):
         h = f / z
     beta = np.array([0.0, h.real, -h.imag])
     if not np.all(np.isfinite([z.real, z.imag, *beta])) or abs(z) == 0:

@@ -10,6 +10,7 @@ import matplotlib
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt  # noqa: E402
 import numpy as np  # noqa: E402
+from matplotlib.ticker import NullLocator  # noqa: E402
 
 from .core import HarmonicModel, elastic_energy, quantize, steady_coefficients  # noqa: E402
 
@@ -121,7 +122,12 @@ def run(output):
     (output / "metrics.json").write_text(
         json.dumps(metrics, indent=2) + "\n", encoding="utf-8", newline="\n"
     )
-    table = []
+    table = [
+        r"\begin{tabular}{rrrrrr}",
+        r"\toprule",
+        r"$A/\Delta$ & $N$ & Rounded MSE & Dither MSE & Theory MSE & $\overline E_c/E$\\",
+        r"\midrule",
+    ]
     for r in rows:
         if r["amplitude_steps"] in [0.05, 0.2] and r["samples"] in [40, 640]:
             table.append(
@@ -131,6 +137,7 @@ def run(output):
                 f"{r['theory_harmonic_mse_m2'] / 1e-6:.5f} & "
                 f"{r['corrected_energy_mean_J'] / r['true_energy_J']:.3f} " + r"\\"
             )
+    table.extend([r"\bottomrule", r"\end{tabular}"])
     (output / "table.tex").write_text("\n".join(table) + "\n", encoding="utf-8", newline="\n")
     macros = {
         "CoefZ": f"{metrics['max_unclipped_coefficient_z']:.3f}",
@@ -204,6 +211,9 @@ def run(output):
         ylabel="Replicates",
         title="D. Zero signal: unbiased can be negative",
     )
+    for ax in [axes[0, 1], axes[1, 0]]:
+        ax.set_xticks([40, 160, 640], ["40", "160", "640"])
+        ax.xaxis.set_minor_locator(NullLocator())
     fig.savefig(output / "study.png", dpi=190)
     plt.close(fig)
     return metrics

@@ -7,3 +7,4 @@ recursive-include results *.json *.csv *.tex *.png
 recursive-include paper *.tex *.pdf *.json
 recursive-include .github *.yml
 include .gitignore .gitattributes
+prune paper/build

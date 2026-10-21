@@ -136,3 +136,9 @@ def test_clipping_breaks_unbiasedness():
     result = quantize(np.full_like(d, 2.0), 1, dither=d, max_code=1)
     assert result.saturated.all()
     assert abs(result.values.mean() - 1) < 1e-12
+
+
+def test_extreme_mechanics_range_is_rejected():
+    for params in [(1e308, 1, 1, 1e308, 1), (1e-300, 1e-300, 1e-300, 1, 1e308)]:
+        with pytest.raises(ValueError):
+            steady_coefficients(*params)
